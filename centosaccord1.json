@@ -1,0 +1,64 @@
+{
+  "builders": [{
+    "type": "azure-arm",
+
+    "client_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "client_secret": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "tenant_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+    "subscription_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+
+
+
+    "os_type": "Linux",
+    "image_url": "https://packerstorage2a.blob.core.windows.net/system/Microsoft.Compute/Images/packerstorage1a/prefix123-osDisk.190c80e4-56a3-4d6e-bdb2-4af1a46f539b.vhd",
+
+    "capture_container_name": "packerstorage1a",
+    "capture_name_prefix": "prefix456",
+    "storage_account": "packerstorage2a",
+    "resource_group_name": "packerstorage",
+
+    "os_type": "Linux",
+
+    "azure_tags": {
+        "dept": "Amido",
+        "task": "ForgeRock deployment"
+    },
+
+    "location": "UK South",
+    "vm_size": "Standard_DS2_v2"
+  }],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "jdk-8u161-linux-x64.rpm",
+      "destination": "/usr/tmp/jdk-8u161-linux-x64.rpm"
+    },
+    {
+      "type": "file",
+      "source": "DS-5.5.0-1.noarch.rpm",
+      "destination": "/tmp/DS-5.5.0-1.noarch.rpm"
+    },
+    {
+      "type": "file",
+      "source": "ansible.tar",
+      "destination": "/tmp/ansible.tar"
+    },
+    {
+    "execute_command": "chmod +x {{ .Path }}; {{ .Vars }} sudo -E sh '{{ .Path }}'",
+    "inline": [
+      "echo 'Installing Dependencies'",
+      "yum install ansible tcpdump -y",
+      "echo 'Unpacking Ansible'",
+      "cd /tmp/ && tar xvf ansible.tar -C /tmp",
+      "find /tmp/",
+      "echo 'Running Ansible'",
+      "cd /tmp/idam-backend-master/do/ansible && ansible-playbook -i inventories/dev/inventory_localhost  opends.yml --extra-vars env=localhost ",
+
+
+      "/usr/sbin/waagent -force -deprovision+user && export HISTSIZE=0 && sync"
+    ],
+    "inline_shebang": "/bin/sh -x",
+    "type": "shell"
+  }]
+}
+
